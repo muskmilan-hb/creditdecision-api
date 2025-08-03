@@ -26,6 +26,9 @@ jobs:
     - name: Publish
       run: dotnet publish -c Release -o publish
 
+    - name: Zip published output
+      run: zip -r publish.zip ./publish
+
     - name: Azure Login
       uses: azure/login@v1
       with:
@@ -35,5 +38,5 @@ jobs:
       run: |
         az webapp deploy --resource-group LoanAppRG \
           --name CreditDecisionAppAPI \
-          --src-path ./publish \
+          --src-path publish.zip \
           --type zip

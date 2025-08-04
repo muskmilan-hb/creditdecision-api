@@ -9,5 +9,7 @@
 
         public int CustomerId { get; set; }
         public Customer? Customer { get; set; }
+
+        public bool HasInsurance { get; set; } = false;
     }
 }

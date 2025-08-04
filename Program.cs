@@ -45,6 +45,7 @@ builder.Services.AddScoped<ILoanRepository, LoanRepository>();
 builder.Services.AddScoped<CustomerService>();
 
 builder.Services.AddSingleton<KeyVaultService>();
+builder.Services.AddSingleton<InsurancePublisher>();
 
 var app = builder.Build();
 

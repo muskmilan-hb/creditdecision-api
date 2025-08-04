@@ -1,4 +1,5 @@
 ﻿using CreditDecision.Models;
+using CreditDecision.Services;
 using LoanManager.Api.Repositories;
 using Microsoft.AspNetCore.Mvc;
 
@@ -9,10 +10,12 @@ namespace LoanManager.Api.Controllers
     public class LoansController : ControllerBase
     {
         private readonly ILoanRepository _repo;
+        private readonly InsurancePublisher _insPublisher;
 
-        public LoansController(ILoanRepository repo)
+        public LoansController(ILoanRepository repo, InsurancePublisher insurancePublisher)
         {
             _repo = repo;
+            _insPublisher = insurancePublisher;
         }
 
         [HttpGet]
@@ -34,6 +37,24 @@ namespace LoanManager.Api.Controllers
         public async Task<IActionResult> Create(Loan loan)
         {
             var created = await _repo.AddAsync(loan);
+            try
+            {
+                if (loan.HasInsurance)
+                {
+                    var ins = new InsuranceRequestedEvent
+                    {
+                        LoanId = loan.Id,
+                        CustomerID = loan.CustomerId,
+                        Amount = loan.Amount,
+                        Policytype = "IUI"
+                    };
+                    await _insPublisher.PublishInsuranceAsync(ins);
+                }
+            }
+            catch (Exception ex)
+            {
+                Console.WriteLine(ex.Message);
+            }
             return CreatedAtAction(nameof(GetById), new { id = created.Id }, created);
         }
 
